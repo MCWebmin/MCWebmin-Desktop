@@ -68,7 +68,11 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
       jScrollPane2 = new javax.swing.JScrollPane();
       playerList = new javax.swing.JList();
       jLabel1 = new javax.swing.JLabel();
-      jTabbedPane1 = new javax.swing.JTabbedPane();
+      pluginsPane = new javax.swing.JTabbedPane();
+      jTabbedPane2 = new javax.swing.JTabbedPane();
+      jTabbedPane3 = new javax.swing.JTabbedPane();
+      jTabbedPane4 = new javax.swing.JTabbedPane();
+      jTabbedPane5 = new javax.swing.JTabbedPane();
       jMenuBar1 = new javax.swing.JMenuBar();
       jMenu1 = new javax.swing.JMenu();
       connectMenuItem = new javax.swing.JMenuItem();
@@ -102,6 +106,11 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
       jLabel1.setText("Connected Users");
 
       setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+      pluginsPane.addTab("Status", jTabbedPane2);
+      pluginsPane.addTab("Settings", jTabbedPane3);
+      pluginsPane.addTab("Plugins", jTabbedPane4);
+      pluginsPane.addTab("Server", jTabbedPane5);
 
       jMenu1.setText("File");
 
@@ -141,17 +150,17 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
       getContentPane().setLayout(layout);
       layout.setHorizontalGroup(
          layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+         .addGroup(layout.createSequentialGroup()
             .addContainerGap()
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 688, Short.MAX_VALUE)
-            .addContainerGap())
+            .addComponent(pluginsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 437, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addContainerGap(263, Short.MAX_VALUE))
       );
       layout.setVerticalGroup(
          layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
          .addGroup(layout.createSequentialGroup()
             .addContainerGap()
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 389, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addContainerGap())
+            .addComponent(pluginsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addContainerGap(193, Short.MAX_VALUE))
       );
 
       pack();
@@ -282,9 +291,13 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
    private javax.swing.JMenuBar jMenuBar1;
    private javax.swing.JScrollPane jScrollPane1;
    private javax.swing.JScrollPane jScrollPane2;
-   private javax.swing.JTabbedPane jTabbedPane1;
+   private javax.swing.JTabbedPane jTabbedPane2;
+   private javax.swing.JTabbedPane jTabbedPane3;
+   private javax.swing.JTabbedPane jTabbedPane4;
+   private javax.swing.JTabbedPane jTabbedPane5;
    private javax.swing.JTextArea logArea;
    private javax.swing.JList playerList;
+   private javax.swing.JTabbedPane pluginsPane;
    private javax.swing.JMenuItem quitMenuItem;
    private javax.swing.JButton sendButton;
    // End of variables declaration//GEN-END:variables
