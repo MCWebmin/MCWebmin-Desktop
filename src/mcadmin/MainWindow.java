@@ -1,9 +1,4 @@
 /*
- *  Copyright 2010 Joe Stein.
- * 
- */
-
-/*dis
  * MainWindow.java
  *
  * Created on Jan 18, 2011, 10:26:07 PM
@@ -12,6 +7,8 @@
 package mcadmin;
 
 import java.awt.event.KeyEvent;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -61,18 +58,20 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
    private void initComponents() {
 
-      jScrollPane1 = new javax.swing.JScrollPane();
-      logArea = new javax.swing.JTextArea();
-      commandField = new javax.swing.JTextField();
-      sendButton = new javax.swing.JButton();
-      jLabel1 = new javax.swing.JLabel();
       pluginsPane = new javax.swing.JTabbedPane();
-      jTabbedPane2 = new javax.swing.JTabbedPane();
-      jTabbedPane3 = new javax.swing.JTabbedPane();
       jTabbedPane4 = new javax.swing.JTabbedPane();
       jTabbedPane5 = new javax.swing.JTabbedPane();
+      jTabbedPane2 = new javax.swing.JTabbedPane();
+      jTabbedPane3 = new javax.swing.JTabbedPane();
       jScrollPane2 = new javax.swing.JScrollPane();
       playerList = new javax.swing.JList();
+      jLabel3 = new javax.swing.JLabel();
+      jPanel1 = new javax.swing.JPanel();
+      commandField = new javax.swing.JTextField();
+      jLabel2 = new javax.swing.JLabel();
+      sendButton = new javax.swing.JButton();
+      jScrollPane1 = new javax.swing.JScrollPane();
+      logArea = new javax.swing.JTextArea();
       jMenuBar1 = new javax.swing.JMenuBar();
       jMenu1 = new javax.swing.JMenu();
       connectMenuItem = new javax.swing.JMenuItem();
@@ -82,15 +81,27 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
       jMenu4 = new javax.swing.JMenu();
       jMenu5 = new javax.swing.JMenu();
 
-      logArea.setColumns(20);
-      logArea.setRows(5);
-      jScrollPane1.setViewportView(logArea);
+      setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+      pluginsPane.addTab("Plugins", jTabbedPane4);
+      pluginsPane.addTab("Server", jTabbedPane5);
+      pluginsPane.addTab("Status", jTabbedPane2);
+      pluginsPane.addTab("Settings", jTabbedPane3);
+
+      jScrollPane2.setViewportView(playerList);
+
+      jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+      jLabel3.setText("Connected Users");
+
+      jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
       commandField.addKeyListener(new java.awt.event.KeyAdapter() {
          public void keyReleased(java.awt.event.KeyEvent evt) {
             commandFieldKeyReleased(evt);
          }
       });
+
+      jLabel2.setText("Command:");
 
       sendButton.setText("Send");
       sendButton.addActionListener(new java.awt.event.ActionListener() {
@@ -99,18 +110,39 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
          }
       });
 
-      jLabel1.setFont(new java.awt.Font("DejaVu Sans", 1, 14)); // NOI18N
-      jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-      jLabel1.setText("Connected Users");
+      logArea.setColumns(20);
+      logArea.setRows(5);
+      jScrollPane1.setViewportView(logArea);
 
-      setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-      pluginsPane.addTab("Status", jTabbedPane2);
-      pluginsPane.addTab("Settings", jTabbedPane3);
-      pluginsPane.addTab("Plugins", jTabbedPane4);
-      pluginsPane.addTab("Server", jTabbedPane5);
-
-      jScrollPane2.setViewportView(playerList);
+      javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+      jPanel1.setLayout(jPanel1Layout);
+      jPanel1Layout.setHorizontalGroup(
+         jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+         .addGroup(jPanel1Layout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+               .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 679, Short.MAX_VALUE)
+               .addGroup(jPanel1Layout.createSequentialGroup()
+                  .addComponent(jLabel2)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                  .addComponent(commandField, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)
+                  .addGap(12, 12, 12)
+                  .addComponent(sendButton, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addContainerGap())
+      );
+      jPanel1Layout.setVerticalGroup(
+         jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addContainerGap()
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+               .addComponent(sendButton)
+               .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                  .addComponent(jLabel2)
+                  .addComponent(commandField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addContainerGap())
+      );
 
       jMenu1.setText("File");
 
@@ -150,24 +182,33 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
       getContentPane().setLayout(layout);
       layout.setHorizontalGroup(
          layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-         .addGroup(layout.createSequentialGroup()
+         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
             .addContainerGap()
-            .addComponent(pluginsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 437, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+               .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+               .addGroup(layout.createSequentialGroup()
+                  .addComponent(pluginsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 437, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                  .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
+                     .addComponent(jScrollPane2))))
+            .addContainerGap())
       );
       layout.setVerticalGroup(
          layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
          .addGroup(layout.createSequentialGroup()
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+               .addGroup(layout.createSequentialGroup()
+                  .addGap(21, 21, 21)
+                  .addComponent(jLabel3)
+                  .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                  .addComponent(jScrollPane2))
                .addGroup(layout.createSequentialGroup()
                   .addContainerGap()
-                  .addComponent(pluginsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE))
-               .addGroup(layout.createSequentialGroup()
-                  .addGap(47, 47, 47)
-                  .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-            .addContainerGap(193, Short.MAX_VALUE))
+                  .addComponent(pluginsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addContainerGap())
       );
 
       pack();
@@ -289,13 +330,15 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
    // Variables declaration - do not modify//GEN-BEGIN:variables
    private javax.swing.JTextField commandField;
    private javax.swing.JMenuItem connectMenuItem;
-   private javax.swing.JLabel jLabel1;
+   private javax.swing.JLabel jLabel2;
+   private javax.swing.JLabel jLabel3;
    private javax.swing.JMenu jMenu1;
    private javax.swing.JMenu jMenu2;
    private javax.swing.JMenu jMenu3;
    private javax.swing.JMenu jMenu4;
    private javax.swing.JMenu jMenu5;
    private javax.swing.JMenuBar jMenuBar1;
+   private javax.swing.JPanel jPanel1;
    private javax.swing.JScrollPane jScrollPane1;
    private javax.swing.JScrollPane jScrollPane2;
    private javax.swing.JTabbedPane jTabbedPane2;
@@ -409,6 +452,18 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
    private class PlayersListener implements Runnable
    {
       private boolean keepRunning = true;
+      private Socket listenSocket;
+      private final int MINEQUERY_PORT = 25570;
+
+      public PlayersListener()
+      {
+         connect();
+      }
+
+      private void connect()
+      {
+         listenSocket = new Socket(new InetSocketAddress(cxn.getIp(),MINEQUERY_PORT),5000);
+      }
 
       protected void kill()
       {
@@ -438,6 +493,9 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
                send("list");
             } catch (InterruptedException ex) {
                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NullPointerException npe)
+            {
+               keepRunning = false;
             }
             
          }

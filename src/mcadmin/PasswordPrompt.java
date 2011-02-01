@@ -1,9 +1,4 @@
 /*
- *  Copyright 2010 Joe Stein.
- * 
- */
-
-/*
  * PasswordPrompt.java
  *
  * Created on Jan 19, 2011, 4:30:40 PM

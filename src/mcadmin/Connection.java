@@ -1,15 +1,10 @@
-/*
- *  Copyright 2010 Joe Stein.
- * 
- */
-
 package mcadmin;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -25,6 +20,16 @@ public class Connection
    {
       handler = dh;
       sock = new Socket(host,port);
+      listener = new Thread(new DataListener());
+      listener.start();
+   }
+
+   public Connection(String host, int port, DataHandler dh, int timeout) throws SocketException, UnknownHostException, IOException
+   {
+      handler = dh;
+      sock = new Socket();
+      sock.setSoTimeout(timeout);
+      sock.connect(new InetSocketAddress(host,port),timeout);
       listener = new Thread(new DataListener());
       listener.start();
    }

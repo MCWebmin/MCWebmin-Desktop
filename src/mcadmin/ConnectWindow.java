@@ -1,7 +1,6 @@
 /*
  * ConnectWindow.java
  *
- * 
  * Created on Jan 18, 2011, 10:32:27 PM
  */
 
@@ -11,7 +10,10 @@
 
 package mcadmin;
 
+import java.awt.Cursor;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,7 +70,7 @@ public class ConnectWindow extends javax.swing.JFrame implements DataHandler {
       hostField = new javax.swing.JTextField();
       portField = new javax.swing.JTextField();
 
-      setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+      setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
       jLabel1.setFont(new java.awt.Font("Arial", 1, 14));
       jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -149,24 +151,36 @@ public class ConnectWindow extends javax.swing.JFrame implements DataHandler {
     {//GEN-HEADEREND:event_connectButtonActionPerformed
       updateStatus("Connecting...");
       lockFields();
+      this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
       try {
-         cxn = new Connection(hostField.getText(), Integer.valueOf(portField.getText()),this);
+         cxn = new Connection(hostField.getText(), Integer.valueOf(portField.getText()),this,5000);
+      } catch (SocketTimeoutException ste)
+      {
+         updateStatus("Connection timed out.");
       } catch (UnknownHostException ex)
       {
-         unlockFields();
          updateStatus("Could not reach host.");
-         Logger.getLogger(ConnectWindow.class.getName()).log(Level.SEVERE, null, ex);
+         //Logger.getLogger(ConnectWindow.class.getName()).log(Level.SEVERE, null, ex);
+      } catch (ConnectException ce)
+      {
+         if (ce.getMessage().equals("Connection timed out"))
+         {
+            updateStatus("Connection timed out.");
+         }
       } catch (IOException ex)
       {
          if (ex.getMessage().equals("Connection refused"))
          {
-            unlockFields();
             updateStatus("Connection refused.");
          } else {
-            unlockFields();
+            ex.printStackTrace();
             updateStatus("I/O exception occurred.");
          }
          //Logger.getLogger(ConnectWindow.class.getName()).log(Level.SEVERE, null, ex);
+      } finally
+      {
+         unlockFields();
+         this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       }
     }//GEN-LAST:event_connectButtonActionPerformed
 
