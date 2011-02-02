@@ -7,8 +7,11 @@
 package mcadmin;
 
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -25,12 +28,13 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
 
    private static final int REROUTE_NONE = 0;
    private static final int REROUTE_PLAYERSLISTENER = 1;
-   
    private Connection cxn;
    private volatile int reroute = REROUTE_NONE;
-   private PlayersListener playersListener = new PlayersListener();
+   private DirtyPlayersListener playersListener = new DirtyPlayersListener();
    private volatile Thread playersListenerThread;
    private DefaultListModel playerListModel;
+   private MineQueryListener mql;
+   private Thread mqlThread;
    
     /** Creates new form MainWindow */
     public MainWindow() {
@@ -325,6 +329,7 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
             connectMenuItem.setText("Connect");
          }
        });
+
    }
 
    // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -449,21 +454,9 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
 
    }
 
-   private class PlayersListener implements Runnable
+   private class DirtyPlayersListener implements Runnable
    {
       private boolean keepRunning = true;
-      private Socket listenSocket;
-      private final int MINEQUERY_PORT = 25570;
-
-      public PlayersListener()
-      {
-         connect();
-      }
-
-      private void connect()
-      {
-         listenSocket = new Socket(new InetSocketAddress(cxn.getIp(),MINEQUERY_PORT),5000);
-      }
 
       protected void kill()
       {
@@ -498,6 +491,40 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
                keepRunning = false;
             }
             
+         }
+      }
+   }
+
+   private void fallback()
+   {
+       JOptionPane.showMessageDialog(this, "Couldn't connect to MineQuery.\n"
+               + "Reverting to dirty listener.","Warning", JOptionPane.INFORMATION_MESSAGE);
+       playersListenerThread.interrupt();
+       
+   }
+
+   private class MineQueryPlayersListener implements Runnable
+   {
+      private boolean keepRunning;
+
+      protected void kill()
+      {
+         keepRunning = false;
+      }
+      
+      public void run()
+      {
+         while (keepRunning && mql != null)
+         {
+            try {
+               Thread.sleep(3000);
+               updatePlayerList(mql.getPlayers());
+            } catch (IOException ex) {
+               keepRunning = false;
+               fallback();
+            } catch (InterruptedException ex) {
+               Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
          }
       }
    }
