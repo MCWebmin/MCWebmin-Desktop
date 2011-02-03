@@ -1,10 +1,14 @@
 package mcadmin;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -64,13 +68,8 @@ public class Connection
       }
    }
 
-   protected void receive(byte[] data)
+   protected void receive(String message)
    {
-      String message = "";
-      for (byte datum: data)
-      {
-         message += (char) datum;
-      }
       if (message.indexOf("enter the password") > -1)
       {
          handler.handle(DataHandler.PASSWORD_PROMPT);
@@ -84,6 +83,16 @@ public class Connection
          handler.handle(DataHandler.MESSAGE, message);
       }
       System.out.println("[REMOTE] " + message);
+   }
+
+   protected void receive(byte[] data)
+   {
+      String message = "";
+      for (byte datum: data)
+      {
+         message += (char) datum;
+      }
+      receive(message);
    }
 
    public boolean isAlive()
@@ -130,13 +139,23 @@ public class Connection
       }
       public void run()
       {
+         BufferedReader br = null;
+         try {
+            br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+         } catch (IOException ex) {
+            keepRunning = false;
+            Logger.getLogger(Connection.class.getName()).log(Level.SEVERE, null, ex);
+         }
          while (keepRunning)
          {
             try
             {
-               byte[] data = new byte[1024];
-               if (sock.getInputStream().read(data) == -1)
+               //byte[] data = new byte[1024];
+              // if (sock.getInputStream().read(data) == -1)
+               String data = br.readLine();
+               if (data == null)
                {
+                  System.out.println("@Connection: data is null, EOS");
                   handler.handle(DataHandler.END_OF_STREAM);
                } else
                {
@@ -144,6 +163,7 @@ public class Connection
                }
             } catch (IOException ex)
             {
+               System.out.println("@Connection: IOException, EOS");
                handler.handle(DataHandler.END_OF_STREAM);
                keepRunning = false;
             }

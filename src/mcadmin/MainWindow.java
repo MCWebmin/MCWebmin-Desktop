@@ -8,10 +8,6 @@ package mcadmin;
 
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -30,19 +26,17 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
    private static final int REROUTE_PLAYERSLISTENER = 1;
    private Connection cxn;
    private volatile int reroute = REROUTE_NONE;
-   private DirtyPlayersListener playersListener = new DirtyPlayersListener();
+   private PlayersListener playersListener;
    private volatile Thread playersListenerThread;
    private DefaultListModel playerListModel;
-   private MineQueryListener mql;
-   private Thread mqlThread;
+   private MineQueryCommunicator mqc;
    
     /** Creates new form MainWindow */
     public MainWindow() {
         initComponents();
         playerListModel = new DefaultListModel();
         playerList.setModel(playerListModel);
-        playersListenerThread = new Thread(playersListener);
-        playersListenerThread.setDaemon(true);
+        playersListenerThread = new Thread();
         updateTitle("MC Remote Admin");
         setComponentsEnabled(false);
         this.setVisible(true);
@@ -283,6 +277,13 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
     public synchronized void setConnection(Connection c)
     {
        cxn = c;
+       playersListener = new MineQueryPlayersListener();
+       mqc = new MineQueryCommunicator(cxn.getIp(),25570);
+       
+       // create the new thread
+       playersListenerThread = new Thread(playersListener);
+       playersListenerThread.setDaemon(true);
+
        updateTitle(cxn.getIp() + ":" + cxn.getPort());
        logArea.setText("");
        log("[INFO] Connected to " + cxn.getIp() + " at port " + cxn.getPort());
@@ -374,10 +375,19 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
             log(message);
          } else if (reroute == REROUTE_PLAYERSLISTENER)
          {
-            playersListener.handle(messages[0]);
+            if (!(playersListener instanceof DirtyPlayersListener))
+            {
+               String message = (messages.length == 0) ? null : messages[0];
+               log(message);
+               setReroute(REROUTE_NONE);
+            } else {
+               System.out.println("DirtyPlayersHandler handling message: " + messages[0]);
+               ((DirtyPlayersListener) playersListener).handle(messages[0]);
+            }
          }
       } else if (code == DataHandler.END_OF_STREAM)
       {
+         System.out.println("Handling EOS code: " + code);
          if (cxn != null)
          {
             JOptionPane.showMessageDialog(this, "Disconnected.","Error", JOptionPane.WARNING_MESSAGE);
@@ -454,10 +464,8 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
 
    }
 
-   private class DirtyPlayersListener implements Runnable
+   private class DirtyPlayersListener extends PlayersListener implements Runnable
    {
-      private boolean keepRunning = true;
-
       protected void kill()
       {
          keepRunning = false;
@@ -500,13 +508,17 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
        JOptionPane.showMessageDialog(this, "Couldn't connect to MineQuery.\n"
                + "Reverting to dirty listener.","Warning", JOptionPane.INFORMATION_MESSAGE);
        playersListenerThread.interrupt();
-       
+       try {
+          playersListenerThread.join(1000);
+       } catch (InterruptedException ex) {
+          Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+       }
+       playersListenerThread = new Thread(new MineQueryPlayersListener());
+       playersListenerThread.start();
    }
 
-   private class MineQueryPlayersListener implements Runnable
+   private class MineQueryPlayersListener extends PlayersListener implements Runnable
    {
-      private boolean keepRunning;
-
       protected void kill()
       {
          keepRunning = false;
@@ -514,11 +526,11 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
       
       public void run()
       {
-         while (keepRunning && mql != null)
+         while (keepRunning && mqc != null)
          {
             try {
                Thread.sleep(3000);
-               updatePlayerList(mql.getPlayers());
+               updatePlayerList(mqc.getPlayers());
             } catch (IOException ex) {
                keepRunning = false;
                fallback();
@@ -527,6 +539,12 @@ public class MainWindow extends javax.swing.JFrame implements DataHandler {
             }
          }
       }
+   }
+
+   private abstract class PlayersListener implements Runnable
+   {
+      protected boolean keepRunning = true;
+      protected abstract void kill();
    }
 
 }
